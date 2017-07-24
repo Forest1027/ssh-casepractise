@@ -37,7 +37,13 @@ function delCustomer(customerId) {
 //查询订单
 function findOrders(customerId) {
 	$.post("${pageContext.request.contextPath}/order/findOrders",{"customerId":customerId},function(data) {
-		alert(data)
+		var orders = eval(data);
+		alert(data);
+		alert(orders);
+		$.each(orders,function(i) {
+			var content="<tr><td>"+orders[i].orderNum+"</td><td>"+orders[i].price+"</td><td>"+orders[i].receiverInfo+"</td><td>"+orders[i].customer.cusName+"</td><td><a href='#'>DELETE</a>&nbsp&nbsp<a href='#'>ADD</a></td></tr>";
+			$("#orderInfo").append(content);
+		});
 	},"json");
 }
 
@@ -61,32 +67,47 @@ function findOrders(customerId) {
 		<s:iterator value="customers" var="c" status="vs">
 			<tr>
 				<td><s:property value="#vs.index+1" /></td>
-				<td><img alt="not accessible" src="<s:property value='#c.cusImgsrc'/>" class="img-rounded"/></td>
+				<td><img alt="not accessible"
+					src="<s:property value='#c.cusImgsrc'/>" class="img-rounded" /></td>
 				<td><s:property value="#c.cusName" /></td>
 				<td><s:property value="#c.cusPhone" /></td>
-				<td><a href="#" onclick="delCustomer(<s:property value='#c.id'/>)">DELETE</a>&nbsp&nbsp&nbsp
-				<a href="#" data-toggle="modal" data-target="#myModal" onclick="findOrders(<s:property value='#c.id'/>)">QUERY</a></td>
+				<td><a href="#"
+					onclick="delCustomer(<s:property value='#c.id'/>)">DELETE</a>&nbsp&nbsp&nbsp
+					<a href="#" data-toggle="modal" data-target="#myModal"
+					onclick="findOrders(<s:property value='#c.id'/>)">QUERY</a></td>
 			</tr>
 		</s:iterator>
 	</table>
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+				</div>
+				<div class="modal-body">
+					<table class="table table-hover bg" id="orderInfo">
+						<tr>
+						<td>ORDER NUMBER</td>
+						<td>PRICE</td>
+						<td>RECEIVER</td>
+						<td>CUSTOMER NAME</td>
+						<td>ADD/DELETE</td>
+						</tr>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Save changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 </html>
