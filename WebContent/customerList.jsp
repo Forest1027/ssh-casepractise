@@ -34,19 +34,77 @@ body {
 function delCustomer(customerId) {
 	location.href="${pageContext.request.contextPath}/customer/delCustomer?id="+customerId;
 }
+//分页相关变量
+var pageNum=1;//当前页码
+var currentCount=5;//每页个数
+var totalCount = 0;//总条数
+var totalPage = 0//总页数
+
+//定义cid的全局变量
+var cid;
 //查询订单
 function findOrders(customerId) {
-	$.post("${pageContext.request.contextPath}/order/findOrders",{"customerId":customerId},function(data) {
-		var orders = eval(data);
-		alert(data);
-		alert(orders);
-		$.each(orders,function(i) {
-			var content="<tr><td>"+orders[i].orderNum+"</td><td>"+orders[i].price+"</td><td>"+orders[i].receiverInfo+"</td><td>"+orders[i].customer.cusName+"</td><td><a href='#'>DELETE</a>&nbsp&nbsp<a href='#'>ADD</a></td></tr>";
-			$("#orderInfo").append(content);
+	cid=customerId;
+
+	$.post("${pageContext.request.contextPath}/order/findOrders",{"customerId":customerId,"pageNum":pageNum,"currentCount":currentCount},function(data) {
+		$("#orderInfo").html("");
+		var pageBean = eval(data);
+		var content = pageBean.content;
+		$.each(content,function(i) {
+			var content1="<tr><td>"+content[i].orderNum+"</td><td>"+content[i].price+"</td><td>"+content[i].receiverInfo
+			+"</td><td>"+content[i].customer.cusName+"</td><td><a href='#' onclick='deleteOrder("+content[i].orderNum+")''>DELETE</a>&nbsp&nbsp<a href='#'>ADD</a></td></tr>";
+			$("#orderInfo").append(content1);
 		});
+		//接收数据
+		pageNum = pageBean.pageNum;
+		currentCount = pageBean.currentCount;
+		totalCount = pageBean.totalCount;
+		totalPage = pageBean.totalPage;
+		//分页拼接
+		//清空page
+		$("#page").html("");
+		$("#page").append("<ul class='pagination' id='pagUl'></ul>");
+		//判断是否能向上翻页
+		if (pageNum==1) {
+			$("#pagUl").append("<li class='disabled'><a href='#' aria-label='Previous'> <span aria-hidden='true'>&laquo;</span></a></li>");
+		}else {
+			$("#pagUl").append("<li class='active'><a href='#' aria-label='Previous' onclick='prePage()'> <span aria-hidden='true'>&laquo;</span></a></li>");
+		}
+		//判断中间数字
+		for (var i = 1; i <=totalPage; i++) {
+			if (i==pageNum) {
+				$("#pagUl").append("<li class='active'><a href='#' onclick='select("+i+")'>"+i+"</a></li>");
+			} else {
+				$("#pagUl").append("<li><a href='#' onclick='select("+i+")'>"+i+"</a></li>");
+			}
+		}
+		//判断能否能向下翻页
+		if (pageNum==totalPage) {
+			$("#pagUl").append("<li class='disabled'><a href='#' aria-label='Next'> <span aria-hidden='true'>&raquo;</span></a></li>");
+		}else {
+			$("#pagUl").append("<li class='active'><a href='#' aria-label='Next' onclick='nextPage()'> <span aria-hidden='true'>&raquo;</span></a></li>");
+		}
 	},"json");
 }
 
+function prePage() {
+	pageNum = pageNum-1;
+	findOrders(cid);
+}
+
+function nextPage() {
+	pageNum = pageNum+1;
+	findOrders(cid);
+}
+
+function select(i) {
+	pageNum=i;
+	findOrders(cid);
+}
+//删除订单
+function deleteOrder(orderId) {
+	location.href="${pageContext.request.contextPath}/order/deleteOrder?orderId="+orderId;
+}
 </script>
 </head>
 <body>
@@ -94,17 +152,18 @@ function findOrders(customerId) {
 				<div class="modal-body">
 					<table class="table table-hover bg" id="orderInfo">
 						<tr>
-						<td>ORDER NUMBER</td>
-						<td>PRICE</td>
-						<td>RECEIVER</td>
-						<td>CUSTOMER NAME</td>
-						<td>ADD/DELETE</td>
+							<td>ORDER NUMBER</td>
+							<td>PRICE</td>
+							<td>RECEIVER</td>
+							<td>CUSTOMER NAME</td>
+							<td>ADD/DELETE</td>
 						</tr>
 					</table>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary">Save changes</button>
+					<nav id="page">
+				
+					</nav>
 				</div>
 			</div>
 		</div>

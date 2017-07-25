@@ -17,7 +17,9 @@ import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.forest.domain.Customer;
 import com.forest.domain.Order;
+import com.forest.domain.PageBean;
 import com.forest.service.IOrderService;
+import com.forest.service.OrderServiceImp;
 import com.opensymphony.xwork2.ActionSupport;
 
 @Controller
@@ -29,6 +31,12 @@ public class OrderAction extends ActionSupport{
 	private IOrderService os;
 	
 	private Integer customerId;
+	
+	private Integer pageNum;
+	
+	private Integer currentCount;
+	
+	private String orderId;
 
 	public Integer getCustomerId() {
 		return customerId;
@@ -38,11 +46,37 @@ public class OrderAction extends ActionSupport{
 		this.customerId = customerId;
 	}
 	
+	public Integer getPageNum() {
+		return pageNum;
+	}
+
+	public void setPageNum(Integer pageNum) {
+		this.pageNum = pageNum;
+	}
+
+	public Integer getCurrentCount() {
+		return currentCount;
+	}
+
+	public void setCurrentCount(Integer currentCount) {
+		this.currentCount = currentCount;
+	}
+	
+	public String getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
+	}
+
 	@Action(value="findOrders")
 	public void findOrders() {
 		//解决相应乱码
 		ServletActionContext.getResponse().setCharacterEncoding("utf-8");
-		List<Order> orders = os.findByCustomer(customerId);
+		//分页查询
+		PageBean<Order> pageBean = os.findOrderByPage(customerId,pageNum,currentCount);
+		//List<Order> orders = os.findByCustomer(customerId);
 		System.out.println(customerId+"--------id");
 		PropertyFilter pFilter = new PropertyFilter() {
 			
@@ -60,7 +94,7 @@ public class OrderAction extends ActionSupport{
 				return true;
 			}
 		};
-		String json = JSONObject.toJSONString(orders,pFilter,SerializerFeature.DisableCircularReferenceDetect);
+		String json = JSONObject.toJSONString(pageBean,pFilter,SerializerFeature.DisableCircularReferenceDetect);
 		System.out.println(json);
 		try {
 			ServletActionContext.getResponse().getWriter().write(json);
@@ -68,6 +102,13 @@ public class OrderAction extends ActionSupport{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+	}
+	
+	@Action(value="deleteOrder",results={@Result(name="success",location="findOrders",type="redirectAction")})
+	public String deleteOrder() {
+		Order order = new Order();
+		order.setOrderNum(orderId);
+		os.deleteOrder(order);
+		return SUCCESS;
 	}
 }
