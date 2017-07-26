@@ -36,7 +36,7 @@ public class OrderAction extends ActionSupport{
 	
 	private Integer currentCount;
 	
-	private String orderId;
+	
 
 	public Integer getCustomerId() {
 		return customerId;
@@ -62,13 +62,7 @@ public class OrderAction extends ActionSupport{
 		this.currentCount = currentCount;
 	}
 	
-	public String getOrderId() {
-		return orderId;
-	}
-
-	public void setOrderId(String orderId) {
-		this.orderId = orderId;
-	}
+	
 
 	@Action(value="findOrders")
 	public void findOrders() {
@@ -104,11 +98,12 @@ public class OrderAction extends ActionSupport{
 		}
 	}
 	
-	@Action(value="deleteOrder",results={@Result(name="success",location="findOrders",type="redirectAction")})
-	public String deleteOrder() {
+	@Action(value="deleteOrder")
+	public void deleteOrder() {
+		String orderId = ServletActionContext.getRequest().getParameter("orderId");
+		System.out.println("neeeeeeee"+orderId);
 		Order order = new Order();
 		order.setOrderNum(orderId);
 		os.deleteOrder(order);
-		return SUCCESS;
 	}
 }

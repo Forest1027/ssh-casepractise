@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.tomcat.jni.OS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.forest.dao.ICustomerDao;
 import com.forest.dao.IOderDao;
@@ -13,6 +14,7 @@ import com.forest.domain.Order;
 import com.forest.domain.PageBean;
 
 @Service
+@Transactional
 public class OrderServiceImp implements IOrderService{
 	@Autowired
 	private ICustomerDao cd;

@@ -52,7 +52,7 @@ function findOrders(customerId) {
 		var content = pageBean.content;
 		$.each(content,function(i) {
 			var content1="<tr><td>"+content[i].orderNum+"</td><td>"+content[i].price+"</td><td>"+content[i].receiverInfo
-			+"</td><td>"+content[i].customer.cusName+"</td><td><a href='#' onclick='deleteOrder("+content[i].orderNum+")''>DELETE</a>&nbsp&nbsp<a href='#'>ADD</a></td></tr>";
+			+"</td><td>"+content[i].customer.cusName+"</td><td><a href='#' onclick=\"deleteOrder('"+content[i].orderNum+"')\">DELETE</a>&nbsp&nbsp</td></tr>";
 			$("#orderInfo").append(content1);
 		});
 		//接收数据
@@ -68,7 +68,7 @@ function findOrders(customerId) {
 		if (pageNum==1) {
 			$("#pagUl").append("<li class='disabled'><a href='#' aria-label='Previous'> <span aria-hidden='true'>&laquo;</span></a></li>");
 		}else {
-			$("#pagUl").append("<li class='active'><a href='#' aria-label='Previous' onclick='prePage()'> <span aria-hidden='true'>&laquo;</span></a></li>");
+			$("#pagUl").append("<li class='active'><a href='#' aria-label='Previous' onclick='prePage()'><span aria-hidden='true'>&laquo;</span></a></li>");
 		}
 		//判断中间数字
 		for (var i = 1; i <=totalPage; i++) {
@@ -103,7 +103,10 @@ function select(i) {
 }
 //删除订单
 function deleteOrder(orderId) {
-	location.href="${pageContext.request.contextPath}/order/deleteOrder?orderId="+orderId;
+	alert(orderId);
+	$.post("${pageContext.request.contextPath}/order/deleteOrder",{"orderId":orderId},function(data) {
+		findOrders(cid);
+	});
 }
 </script>
 </head>
